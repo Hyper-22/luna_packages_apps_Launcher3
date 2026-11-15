@@ -230,7 +230,7 @@ public class QuickstepTransitionManager implements OnDeviceProfileChangeListener
     private static final int DEFAULT_NAV_FADE_OUT_DURATION = 133;
     private static final int DEFAULT_CLOSING_DURATION = 250;
     private static final int DEFAULT_WIDGET_CROSSFADE_DURATION = 125;
-    private static final float DEFAULT_WORKSPACE_SCALE = 0.9f;
+    private static final float DEFAULT_WORKSPACE_SCALE = ScalingWorkspaceRevealAnim.MIN_SIZE;
     private static final float DEFAULT_WORKSPACE_ALPHA = 0.85f;
 
     public static final int ANIMATION_NAV_FADE_IN_DURATION = 266;
