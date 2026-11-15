@@ -47,7 +47,6 @@ import com.android.quickstep.util.AnimatorControllerWithResistance;
 import com.android.quickstep.util.RectFSpringAnim;
 import com.android.quickstep.util.NothingAppAnimation;
 import com.android.quickstep.util.RectFSpringAnim.DefaultSpringConfig;
-import com.android.quickstep.util.RectFSpringAnim.NothingSpringConfig;
 import com.android.quickstep.util.RectFSpringAnim.CosSpringConfig;
 import com.android.quickstep.cos.CosAppAnimation;
 import com.android.quickstep.cos.CosHomeSnapshot;
@@ -219,11 +218,6 @@ public abstract class SwipeUpAnimationLogic implements
                     dp.getDeviceProperties().getAvailableWidthPx(),
                     dp.getDeviceProperties().getAvailableHeightPx()
             );
-            if (!CosAppAnimation.isEnabled(mContext)) {
-                return NothingAppAnimation.getDefaultWindowTargetRect(
-                        dp.getWorkspaceIconProfile().getIconSizePx(), primaryDimension,
-                        secondaryDimension);
-            }
             final float targetX =  primaryDimension / 2f;
             final float targetY = secondaryDimension - dp.hotseatBarSizePx;
             // Fallback to animate to center of screen.
@@ -417,8 +411,6 @@ public abstract class SwipeUpAnimationLogic implements
                         mContext, mDp, startRect, targetRect))
                 : cos
                 ? new RectFSpringAnim(new CosSpringConfig(mContext, mDp, startRect, targetRect))
-                : !CosAppAnimation.isEnabled(mContext)
-                ? new RectFSpringAnim(new NothingSpringConfig(mContext, mDp, startRect, targetRect))
                 : new RectFSpringAnim(useTaskbarHotseatParams
                         ? new TaskbarHotseatSpringConfig(mContext, startRect, targetRect)
                         : homeAnimationFactory.isWidget()

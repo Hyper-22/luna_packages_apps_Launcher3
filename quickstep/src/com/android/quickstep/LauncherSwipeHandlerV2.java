@@ -55,6 +55,7 @@ import com.android.launcher3.widget.LauncherAppWidgetHostView;
 import com.android.quickstep.util.ActiveGestureLog;
 import com.android.quickstep.util.LunarisBarAnimation;
 import com.android.quickstep.util.NothingAppAnimation;
+import com.android.quickstep.util.ScalingWorkspaceRevealAnim;
 import com.android.quickstep.cos.CosAppAnimation;
 import com.android.quickstep.cos.CosCloseAnimation;
 import com.android.quickstep.cos.CosWorkspaceRevealAnim;
@@ -164,13 +165,6 @@ public class LauncherSwipeHandlerV2 extends AbsSwipeUpHandler<
 
         if (mHandOffAnimationToHome || !canUseWorkspaceView || appCanEnterPip || mIsSwipeForSplit) {
             return new LauncherHomeAnimationFactory() {
-
-                @Override
-                protected float getWindowAlpha(float progress) {
-                    return !CosAppAnimation.isEnabled(mContext) && targetTaskView == null
-                            ? NothingAppAnimation.getFallbackWindowAlpha(progress)
-                            : super.getWindowAlpha(progress);
-                }
 
                 @Nullable
                 @Override
@@ -504,8 +498,8 @@ public class LauncherSwipeHandlerV2 extends AbsSwipeUpHandler<
                             getWindowTargetRect(), true, true).start();
                     return;
                 }
-                mContainer.getAppTransitionManager().getNothingWorkspaceAnimation().reveal(
-                        mSiblingAnimation, getWindowTargetRect(), true, true);
+                new ScalingWorkspaceRevealAnim(mContainer, mSiblingAnimation,
+                        getWindowTargetRect(), true, true).start();
             }
         }
 
@@ -522,9 +516,6 @@ public class LauncherSwipeHandlerV2 extends AbsSwipeUpHandler<
             super.setAnimation(anim);
             if (CosAppAnimation.isEnabled(mContainer)) {
                 anim.addAnimatorListener(new CosCloseAnimation(mContainer, anim::end));
-            } else {
-                mContainer.getAppTransitionManager().getNothingWorkspaceAnimation()
-                        .trackClosingAnimation(anim);
             }
         }
 
@@ -562,8 +553,7 @@ public class LauncherSwipeHandlerV2 extends AbsSwipeUpHandler<
                     new CosWorkspaceRevealAnim(mContainer, null, null, true, true).start();
                     return;
                 }
-                mContainer.getAppTransitionManager().getNothingWorkspaceAnimation().reveal(
-                        null, null, true, true);
+                new ScalingWorkspaceRevealAnim(mContainer, null, null, true, true).start();
             }
         }
     }

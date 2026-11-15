@@ -51,7 +51,6 @@ import com.android.launcher3.states.StateAnimationConfig.SKIP_OVERVIEW
 import com.android.launcher3.states.StateAnimationConfig.SKIP_SCRIM
 import com.android.launcher3.uioverrides.QuickstepLauncher
 import com.android.launcher3.util.InteractionBoost
-import com.android.quickstep.cos.CosAppAnimation
 import com.android.quickstep.views.RecentsView
 import com.android.systemui.shared.system.BlurUtils
 
@@ -94,9 +93,7 @@ class ScalingWorkspaceRevealAnim(
         val BLUR_INTERPOLATOR = Interpolators.clampToProgress(EMPHASIZED, 0f, 0.6f)
     }
 
-    private val isNothingAnimation = !CosAppAnimation.isEnabled(launcher)
-    private val duration =
-        if (isNothingAnimation) NothingAppAnimation.WORKSPACE_DURATION_MS else SCALE_DURATION_MS
+    private val duration = SCALE_DURATION_MS
     private val animation = PendingAnimation(duration)
     private var blurLayer: SurfaceControl? = null
     private var surfaceTransactionApplier: SurfaceTransactionApplier =
@@ -157,14 +154,8 @@ class ScalingWorkspaceRevealAnim(
         if (playAlphaReveal) {
             // Fade in quickly at the beginning of the animation, so the content doesn't look like
             // it's popping into existence out of nowhere.
-            val fadeDuration = if (isNothingAnimation) {
-                NothingAppAnimation.WORKSPACE_FADE_DURATION_MS
-            } else FADE_DURATION_MS
-            val fadeClamp = fadeDuration.toFloat() / duration
-            val startAlpha = if (isNothingAnimation) {
-                if (workspace.alpha != MAX_ALPHA) workspace.alpha
-                else NothingAppAnimation.WORKSPACE_MIN_ALPHA
-            } else MIN_ALPHA
+            val fadeClamp = FADE_DURATION_MS.toFloat() / duration
+            val startAlpha = MIN_ALPHA
             workspace.alpha = startAlpha
             animation.setFloat(
                 workspace,
@@ -177,8 +168,7 @@ class ScalingWorkspaceRevealAnim(
             // This is because hotseat visibility can also be changed based off of alpha in
             // WorkspaceRevealAnim which also calls setViewAlpha.
             // b/428257480 Ideally we should be settings MultiValueAlpha with 2 channels instead.
-            val hotseatDelay = if (isNothingAnimation) 0f
-                else HOTSEAT_FADE_DELAY_MS.toFloat() / duration
+            val hotseatDelay = HOTSEAT_FADE_DELAY_MS.toFloat() / duration
             animation.setViewAlpha(
                 hotseat,
                 MAX_ALPHA,
@@ -214,9 +204,7 @@ class ScalingWorkspaceRevealAnim(
                         launcher.resources.getInteger(R.integer.max_depth_blur_radius)
                     }
                 val blurAnimator = ValueAnimator.ofFloat(1f, 0f)
-                blurAnimator.setInterpolator(if (isNothingAnimation) {
-                    Interpolators.clampToProgress(EMPHASIZED, 0f, 0.666f)
-                } else BLUR_INTERPOLATOR)
+                blurAnimator.setInterpolator(BLUR_INTERPOLATOR)
                 var lastBlurRadius = -1
                 blurAnimator.addUpdateListener {
                     val blurRadius = (maxBlurRadius * blurAnimator.animatedValue as Float).toInt()
@@ -229,9 +217,7 @@ class ScalingWorkspaceRevealAnim(
 
                 transitionConfig.setInterpolator(
                     StateAnimationConfig.ANIM_SCRIM_FADE,
-                    if (isNothingAnimation) {
-                        Interpolators.clampToProgress(EMPHASIZED, 0f, 0.666f)
-                    } else BLUR_INTERPOLATOR,
+                    BLUR_INTERPOLATOR,
                 )
                 launcher.workspace.stateTransitionAnimation.setScrim(
                     animation,

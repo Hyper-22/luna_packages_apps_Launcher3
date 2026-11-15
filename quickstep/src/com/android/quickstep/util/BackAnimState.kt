@@ -66,7 +66,9 @@ class AnimatorBackState @JvmOverloads constructor(
         if (!registerStateAnimation && springAnim?.isCos == true) {
             anim?.addListener(forEndCallback(Runnable { springAnim.detachWindow() }))
         }
-        if (springAnim?.isNothing == true) {
+        // The standard return spring can outlive the content animation (for example in All Apps).
+        // Keep the remote surfaces until both have finished, as with the search-bar spring.
+        if (registerStateAnimation && springAnim != null) {
             result.setAnimation(anim, c, null, false, springAnim)
         } else {
             result.setAnimation(anim, c)
@@ -81,12 +83,11 @@ class AnimatorBackState @JvmOverloads constructor(
     }
 
     override fun cancel() {
-        if (springAnim?.isNothing == true) {
-            springAnim.cancel()
+        if (registerStateAnimation) {
+            springAnim?.cancel()
             anim?.cancel()
             return
         }
-        if (registerStateAnimation) return
         if (springAnim?.isCos == true) springAnim.detachWindow() else springAnim?.cancel()
         anim?.cancel()
     }
